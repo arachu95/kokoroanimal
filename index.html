@@ -11,3 +11,529 @@
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+=======
+import React, { useState, useMemo } from 'react';
+
+import { 
+
+  Heart, Star, Sparkles, RotateCcw, ArrowRight, 
+
+  Smile, Zap, Gift, Music, Lightbulb, Search, 
+
+  Map, Compass, Info, Shield, Tent, Crown,
+
+  Candy, Cloud, Rocket, Moon, Sun, Camera, ChevronRight
+
+} from 'lucide-react';
+
+
+
+const App = () => {
+
+  const [step, setStep] = useState('start');
+
+  const [answers, setAnswers] = useState({ g: 0, alpha: 0, kappa: 0, beta: 0, obs: 0, change: 0, role: 0 });
+
+  const [currentQ, setCurrentQ] = useState(0);
+
+
+
+  const questions = [
+
+    { id: 'g', text: "おもしろそうな音が聞こえたら？", options: [{ text: "すぐにダッシュ！", score: 1 }, { text: "じーっと見てから動く", score: 5 }, { text: "今の遊びを続ける", score: 3 }] },
+
+    { id: 'alpha', text: "はじめてのお友達に会ったら？", options: [{ text: "「あそぼ！」って言える", score: 1 }, { text: "モジモジしちゃう", score: 5 }, { text: "だれか来るのを待つ", score: 3 }] },
+
+    { id: 'kappa', text: "「片付けて！」一気に言われたら？", options: [{ text: "「はーい！」でテキトー", score: 1 }, { text: "うわーん！ってなる", score: 5 }, { text: "どれからやるか迷う", score: 3 }] },
+
+    { id: 'beta', text: "一日じゅう遊んだら、夜は？", options: [{ text: "すぐバタンキュー！", score: 5 }, { text: "まだまだ遊びたい！", score: 1 }, { text: "ちょっと休めばOK", score: 3 }] },
+
+    { id: 'obs', text: "道にきれいな石が落ちていたら？", options: [{ text: "すぐにポケットへ！", score: 1 }, { text: "じっくり観察する", score: 5 }, { text: "みんなに教えてあげる", score: 3 }] },
+
+    { id: 'change', text: "急に予定が変わっちゃったら？", options: [{ text: "「わーい！おもしろそう」", score: 1 }, { text: "「えーっ」て固まる", score: 5 }, { text: "「じゃあ何する？」", score: 3 }] },
+
+    { id: 'role', text: "どんな風に世界をまわりたい？", options: [
+
+      { text: "みんなをリードする団長", score: 1 }, 
+
+      { text: "ひみつを見つける探検家", score: 2 }, 
+
+      { text: "みんなをいやす妖精さん", score: 3 },
+
+      { text: "キラキラした王子・王女", score: 4 }
+
+    ] }
+
+  ];
+
+
+
+  const handleAnswer = (score) => {
+
+    const id = questions[currentQ].id;
+
+    setAnswers(prev => ({ ...prev, [id]: score }));
+
+    if (currentQ < questions.length - 1) {
+
+      setCurrentQ(currentQ + 1);
+
+    } else {
+
+      setStep('loading');
+
+      setTimeout(() => setStep('result'), 1500);
+
+    }
+
+  };
+
+
+
+  const resultsData = useMemo(() => {
+
+    if (step !== 'result') return null;
+
+    const { g, alpha, change, obs, kappa, role } = answers;
+
+
+
+    let animalKey = "";
+
+    const totalSlow = g + alpha + change;
+
+    if (totalSlow >= 12) animalKey = "PANDA";
+
+    else if (obs >= 4 && alpha >= 3) animalKey = "HAMSTER";
+
+    else if (g <= 2 && alpha <= 2) animalKey = "CAT";
+
+    else if (kappa >= 4 || change >= 4) animalKey = "RABBIT";
+
+    else animalKey = "DOG";
+
+
+
+    const roleKeys = { 1: "HERO", 2: "SCOUT", 3: "FAIRY", 4: "PRINCE" };
+
+    const roleKey = roleKeys[role];
+
+
+
+    const content = {
+
+      'PANDA_HERO': { title: "みんなの心を包む応援団長", about: "きみは、みんなが焦っている時でも「大丈夫だよ」と言える大きな安心感を持っているよ。きみがそこに座っているだけで、不思議と周りの空気が穏やかになるんだ。", world: "きみの世界はとても広く、ゆっくり流れているよ。みんなが気づかない小さな花の揺れをじっくり眺めるのが得意なんだね。", tips: "「急いで！」と言われると動けなくなるのは、きみが世界を丁寧に味わっている証拠。自分のタイミングで動くのが一番いいんだよ。", talent: "周りをリラックスさせ、みんなの勇気を引き出す「心の支え」になる力！", advice: "まずは深呼吸。きみのペースが、みんなの安心になるんだよ。" },
+
+      'PANDA_SCOUT': { title: "ひみつを見つけるのんびり探検家", about: "速く行くことよりも、面白いものを見つけるのが得意。道端の石ころや虫たちのひみつを誰よりも知っている、観察の天才だよ。", world: "きみの世界は宝物が詰まった博物館。一つひとつのものを手に取って、じっくり仕組みを調べるのが大好きなんだね。", tips: "一度にたくさんのことを言われると困っちゃうのは、全部を大事にしたいと思っているから。一つずつ片付ければ大丈夫だよ。", talent: "普通の人が見逃してしまう、小さな幸せや大発見を見つけ出す才能！", advice: "「一つずつやるね」って言ってみよう。きみの丁寧さは最高の武器！" },
+
+      'PANDA_FAIRY': { title: "ポカポカ魔法の癒やし妖精", about: "きみがそばにいると、怒っている人もニコニコしちゃう。不思議な「平和オーラ」で世界を優しく包む、魔法使いのような子だよ。", world: "きみの世界は温かいお布団の中みたい。優しくて安全で、トゲトゲしたものが一つもない、最高に心地よい場所なんだね。", tips: "「早く動かなきゃ」と焦らなくていいよ。きみのゆったりした時間が、忙しすぎる現代のみんなをホッとさせているんだから。", talent: "争いをなくし、そこにいるだけでみんなを幸せな気持ちにする魔法！", advice: "きみが笑っているだけで100点満点。ゆっくり、のんびりいこう。" },
+
+      'PANDA_PRINCE': { title: "おっとりマイペースな貴公子", about: "急がず、騒がず、自分だけのステキな世界を楽しめる王子様・王女様。きみの優雅な振る舞いは、みんなの憧れだよ。", world: "きみの世界は整えられたお庭。大好きなものだけに囲まれて、ゆっくりお茶を飲むような贅沢な時間が流れているよ。", tips: "周りがバタバタしていても、きみはきみのままでいて。きみが「変わらない」ことで、迷っている友達に安心を教えてあげられるんだ。", talent: "周りに流されず、自分の「好き」を貫き通せる強くて美しい心！", advice: "きみのこだわりは、王国の宝物。ずっと大事にしてね。" },
+
+      'HAMSTER_HERO': { title: "一生懸命みんなを引っぱる団長", about: "体は小さくても、心には熱い火が灯っているよ。みんなのために一生懸命考えて、全力で走り回る、頼もしいリーダーだね。", world: "きみの世界はキラキラしたひまわり畑。いつも次の目標があって、そこに向かってコツコツ進んでいくのが楽しいんだね。", tips: "頑張りすぎて疲れちゃうことがあるかも。「休むのも大事な作戦」だと考えて、しっかり休憩する時間も作ってね。", talent: "どんなに高い壁でも、少しずつ削って最後には乗り越えてしまう力！", advice: "「今日はここまで！」と決めて休おう。きみの頑張りは本物だよ。" },
+
+      'HAMSTER_SCOUT': { title: "ひみつの地図を持つ探検家", about: "「ここには何があるかな？」と調べるのが大好き。きみの心のリュックには、みんなが知らないお宝の知識が詰まっているよ。", world: "きみの世界は引き出しがあるデスク。新しい発見を整理して、自分だけのひみつ基地を作り上げていくのが幸せなんだね。", tips: "予定が変わるとドキドキしちゃうのは、きみが準備を大事にしているから。今まで準備してきたことが、必ずきみを助けてくれるよ。", talent: "物事の裏側にある仕組みを理解し、正しい道を選び取る賢い分析力！", advice: "困ったらリュック（知識）を覗いて。答えはもう持っているはず。" },
+
+      'HAMSTER_FAIRY': { title: "幸せを配るお世話上手な妖精", about: "困っている人に「どうぞ」ができる優しい子。小さな変化にいち早く気づいて、こっそりみんなを助けている妖精さんだね。", world: "きみの世界は甘い匂いのキッチン。みんなが喜ぶ顔を想像しながら、何かを準備したり整えたりするのが大好きなんだね。", tips: "誰かを優先しすぎちゃうかも。きみ自身が「楽しい！」「これが好き！」と思うことも、同じくらい大切にしていいんだよ。", talent: "細かな気配りと優しさで、みんなの心を繋ぎ止める「絆」の魔法！", advice: "まずは自分に「お疲れ様」。きみが幸せなら、みんなも幸せだよ。" },
+
+      'HAMSTER_PRINCE': { title: "宝石を守る小さな国のスター", about: "自分の好きなもの、大切なものへのこだわりは負けない。きみが選ぶものは、いつも世界でたった一つの特別な輝きがあるよ。", world: "きみの世界はお城のひみつの小部屋。誰にも邪魔されず、大好きなことに没頭している時間が、きみの美しさを作っているんだ。", tips: "「みんなと同じ」を押し付けられると苦しいよね。きみの感性は特別だから無理に合わせなくていい。きみの「好き」は正解だよ。", talent: "誰にも真似できない独特の感性と、一つのことを極めるプロの力！", advice: "きみのセンスを信じて。それがいつか、世界を驚かせるから。" },
+
+      'CAT_HERO': { title: "風のように自由な冒険リーダー", about: "ルールよりも「面白そう！」が一番のエネルギー。きみが走り出すと、みんなワクワクして後を追いたくなる、魔法のリーダーだよ。", world: "きみの世界は屋根の上の広い空。どこまでも行ける。自由な風を感じながら、毎日を新しいゲームのように楽しんでいるんだね。", tips: "じっとしているのが苦手なのは、心が常に「次の冒険」を探しているから。飽きっぽいんじゃなくて、好奇心が無限にあるだけ！", talent: "誰も勇気が出ない場所に一番に飛び込み、道を切り拓くスピード感！", advice: "やりたいことは全部やろう！きみの直感はいつも正しいよ。" },
+
+      'CAT_SCOUT': { title: "ワクワクを捕まえる光の探検家", about: "「あ、あそこに何かある！」という発見が誰よりも速い。みんなが見逃す面白い瞬間を、確実に捕まえるハンターだよ。", world: "きみの世界はくるくる変わる万華鏡。一瞬一瞬が新しくて、退屈する暇なんて一秒もない、驚きに満ちた場所なんだね。", tips: "集中力が続かない時は、心が次の「宝物」を探しているサイン。色んなことに興味を持つことで、きみの知恵が貯まっていくよ。", talent: "一瞬の判断で本物を見抜き、チャンスを逃さず掴み取るセンス！", advice: "目移りしてもOK。その全ての経験が、いつか一つに繋がるから。" },
+
+      'CAT_FAIRY': { title: "世界を彩る気まぐれな妖精", about: "昨日と今日で言うことが違ってもいい。きみの予測できない動きが、硬くなったみんなの心を柔らかくほぐしてくれる、自由な妖精だよ。", world: "きみの世界は雲の上の遊園地。重力もルールも関係ない。ふわふわして、カラフルで、次はどんな楽しいことが起きるか楽しみだね。", tips: "「ちゃんとして」と言われるとしんどいよね。きみは、遊びや楽しさの中からこそ、最高の結果を出せるタイプなんだよ。", talent: "常識の枠を飛び越えて、誰も思いつかないようなアイデアを生む力！", advice: "きみの「遊び」が世界を救う。真面目になりすぎなくて大丈夫。" },
+
+      'CAT_PRINCE': { title: "視線を釘付けにするキラキラスター", about: "媚びることはないけれど、なぜかみんなが注目してしまう。きみの立ち居振る舞いには、天性のスターの輝きがあるよ。", world: "きみの世界は夜の美術館。静かだけど美しくて、きみだけの美学が詰まっている。一人でいる時間も大切なステージなんだ。", tips: "集団の中で浮いている気がしても気にしないで。きみは「個性的」という最高の褒め言葉をもらっている選ばれし存在だよ。", talent: "唯一無二の存在感を放ち、自分の世界を表現して人を惹きつける力！", advice: "きみの「かっこいい」を信じて。きみはきみであるだけで完璧！" },
+
+      'RABBIT_HERO': { title: "痛みに寄り添う優しい騎士団長", about: "みんなが何を考えているか、すぐに気づけるね。困っている子を放っておけない、本当の優しさを持ったリーダーだよ。", world: "きみの世界はきれいな水が流れる川。みんなの気持ちが波紋のように伝わってくる、とても繊細でピュアな場所なんだ。", tips: "周りの感情をもらいすぎて疲れちゃうことがあるよ。時々は心のシャッターを閉めて、自分だけの場所でゆっくり休んでね。", talent: "言葉にしなくても相手の心を感じ取り、深い信頼を築ける共感力！", advice: "まずは自分の心を温めて。きみが元気なら、周りも元気になれる。" },
+
+      'RABBIT_SCOUT': { title: "予兆を見逃さない名探偵探検家", about: "いきなり飛び込まず、まずは耳をすませて様子を見る。その慎重さと観察眼が、チームを危険から救う大きな力になるんだ。", world: "きみの世界は霧の向こうの花園。確かめながら進むことで、他の人が壊してしまうような繊細な美しさを見つけられるんだ。", tips: "怖がりな自分を嫌いにならないで。それは準備が誰より丁寧だということ。納得できるまで準備すれば、きみは誰より遠くへ行ける。", talent: "リスクを察知し、確実で安全な成功ルートを見つけ出す高い知性！", advice: "「大丈夫」と思えるまで待っていい。きみのタイミングが正解！" },
+
+      'RABBIT_FAIRY': { title: "暗闇に光を灯す月の癒やし妖精", about: "目立つのは苦手でも、きみの優しさは誰かの心をこっそり救っているよ。影から世界を支える、慈愛の妖精さんだね。", world: "きみの世界は静かな夜の森。月の光が差し込むような、神秘的で優しい魔法に満ちている。きみだけの神聖な場所なんだ。", tips: "緊張して声が小さくなるのは、心がとても繊細で美しいから。無理に大声を出さなくても、きみの想いはちゃんと伝わっているよ。", talent: "細かい心の動きを感じ取り、傷ついた人を深いところから癒やす力！", advice: "きみの優しさは世界に必要。小さな声でいい、想いを伝えて。" },
+
+      'RABBIT_PRINCE': { title: "美しさを映し出すクリスタルの王子", about: "きれいなもの、ステキな音が大好き。きみの美意識は高く、選ぶものは周りの景色をパッと華やかに変えてしまう力があるよ。", world: "きみの世界はクリスタルの宮殿。キラキラして壊れやすいけれど、他にはない透明な美しさを持っている。きみの感性がルール！", tips: "強い言葉に傷つきやすいのは、心が「高性能なアンテナ」だから。美しいものに触れて、心をこまめにクリーニングしてね。", talent: "芸術家のような、鋭く美しい感性で世界を彩る才能！", advice: "きみの「美しい」を追求して。それが世界を新しくする魔法！" },
+
+      'DOG_HERO': { title: "みんなを一つにする最強団長", about: "きみの「みんなで行こう！」の一言には、世界を動かす魔法がかかっているよ。信頼と友情で引っ張る、太陽のようなリーダーだね。", world: "きみの世界は晴れ渡った広場。みんなが集まって笑い合う、明るくて愛に満ちた場所なんだ。きみが中心にいるよ。", tips: "リーダーとして頑張りすぎて抱え込んじゃうかも。「助けて」と言えるのも立派なリーダー。みんなを信じて頼ってみて。", talent: "バラバラのみんなを一つの「家族」にまとめ上げるチーム力！", advice: "きみが笑っていればみんな幸せ。まずはきみが一番楽しもう！" },
+
+      'DOG_SCOUT': { title: "絆を羅針盤にする信頼の探検隊長", about: "一人で進むより、みんなで進む方がずっと楽しい。きみは仲間を信じ、励ますことで、困難な道も笑顔で乗り越えていけるよ。", world: "きみの世界はみんなで作る秘密基地。協力して形にしていく。その「プロセス」こそが、きみの宝物なんだね。", tips: "嫌われるのを怖がってしまうことがあるかも。でも大丈夫、きみの真っ直ぐな誠実さは、必ずみんなに伝わっているよ。", talent: "人との繋がりをエネルギーに変え、最高の連係を生む人間力！", advice: "「ありがとう」をたくさん言おう。その言葉がきみの道を照らす。" },
+
+      'DOG_FAIRY': { title: "絆を守る愛の守護妖精", about: "誰かが悲しんでいたら真っ先に駆け寄る子。きみがいるだけで、トゲトゲしていた関係も丸く収まってしまう不思議な妖精だよ。", world: "きみの世界は賑やかな食卓。いつも温かい言葉に溢れていて、一人ぼっちの人がいない、世界で一番優しい場所なんだね。", tips: "顔色を伺いすぎて、自分の「嫌だ」を飲み込んちゃうことがあるよ。嫌いなものは嫌いと言っても、きみの愛は揺るがないよ。", talent: "冷え切った場所を瞬時に温め、心で繋ぐ「愛情」の魔法！", advice: "自分の「嫌だ」も大切にして。きみの心を守るのも大事な仕事。" },
+
+      'DOG_PRINCE': { title: "笑顔で世界を照らすカリスマ王子", about: "いるだけで場が明るくなる、天性のムードメーカー。きみの笑顔には、どんな薬よりも人を元気にさせる力があるんだよ。", world: "きみの世界は毎日がお祭り！美味しいものと歌に囲まれて、みんなが主役になれるような、ワクワクが止まらない場所なんだ。", tips: "一人になると急に寂しくなって不安になるかもしれない。でも、きみが配った笑顔は必ずきみのもとに返ってくるから安心して。", talent: "周囲をポジティブな渦に巻き込み、不可能を可能にする陽の力！", advice: "きみの笑顔は世界の宝物。今日も元気に笑って過ごそう！" }
+
+    };
+
+
+
+    const key = `${animalKey}_${roleKey}`;
+
+    const animalData = {
+
+      'PANDA': { name: "パンダさん", emoji: "🐼", color: "from-blue-50 to-indigo-100", textColor: "text-indigo-800", accent: "bg-indigo-400" },
+
+      'HAMSTER': { name: "ハムスターさん", emoji: "🐹", color: "from-orange-50 to-amber-100", textColor: "text-amber-800", accent: "bg-amber-500" },
+
+      'CAT': { name: "ネコさん", emoji: "🐱", color: "from-purple-50 to-pink-100", textColor: "text-purple-800", accent: "bg-purple-500" },
+
+      'RABBIT': { name: "うさぎさん", emoji: "🐰", color: "from-pink-50 to-rose-100", textColor: "text-rose-800", accent: "bg-rose-500" },
+
+      'DOG': { name: "イヌさん", emoji: "🐶", color: "from-sky-50 to-blue-100", textColor: "text-blue-800", accent: "bg-blue-500" }
+
+    };
+
+
+
+    const roleData = {
+
+      'HERO': { name: "だんちょう", icon: <Zap size={18}/> },
+
+      'SCOUT': { name: "たんけんか", icon: <Compass size={18}/> },
+
+      'FAIRY': { name: "ようせい", icon: <Sparkles size={18}/> },
+
+      'PRINCE': { name: "おうじ・おうじょ", icon: <Crown size={18}/> }
+
+    };
+
+
+
+    return { animal: animalData[animalKey], roleInfo: roleData[roleKey], ...content[key] };
+
+  }, [answers, step]);
+
+
+
+  return (
+
+    <div className="min-h-[100dvh] bg-[#FFF5F9] font-sans flex flex-col items-center py-4 px-3 overflow-x-hidden">
+
+      <div className="w-full max-w-sm bg-white rounded-[50px] shadow-[0_20px_50px_rgba(255,182,193,0.3)] overflow-hidden flex flex-col border-[10px] border-white relative">
+
+        
+
+        {step === 'start' && (
+
+          <div className="p-8 text-center space-y-8 flex-1 flex flex-col justify-center animate-in fade-in zoom-in">
+
+            <div className="relative inline-block">
+
+                <div className="absolute inset-0 bg-pink-100 blur-3xl opacity-50 animate-pulse"></div>
+
+                <div className="text-[110px] animate-float relative drop-shadow-lg">✨🎁✨</div>
+
+            </div>
+
+            <div className="space-y-4">
+
+              <h1 className="text-3xl font-black text-rose-500 leading-tight">こころの<br/><span className="text-4xl">冒険レポート</span></h1>
+
+              <div className="bg-rose-50 py-1.5 px-6 rounded-full inline-block border-2 border-rose-100 shadow-inner">
+
+                <p className="text-rose-400 font-black text-[11px] tracking-widest">きみだけの物語をみつけよう</p>
+
+              </div>
+
+            </div>
+
+            <button 
+
+              onClick={() => setStep('quiz')} 
+
+              className="w-full py-5 bg-gradient-to-r from-rose-400 to-orange-400 text-white rounded-full font-black text-xl shadow-[0_6px_0_#e11d48] hover:translate-y-1 hover:shadow-[0_2px_0_#e11d48] active:translate-y-1.5 active:shadow-none transition-all flex items-center justify-center gap-2"
+
+            >
+
+              冒険に出かける <ChevronRight size={24} />
+
+            </button>
+
+          </div>
+
+        )}
+
+
+
+        {step === 'quiz' && (
+
+          <div className="p-6 space-y-6 min-h-[520px] flex flex-col animate-in fade-in slide-in-from-right-10">
+
+            {/* プログレスバー */}
+
+            <div className="space-y-2">
+
+                <div className="flex justify-between items-end px-2">
+
+                    <span className="text-[10px] font-black text-rose-300 tracking-[0.2em] uppercase">Adventure Step</span>
+
+                    <span className="text-sm font-black text-rose-500 italic">{currentQ + 1} / {questions.length}</span>
+
+                </div>
+
+                <div className="h-6 bg-rose-50 rounded-full border-4 border-rose-50 shadow-inner p-1 overflow-hidden">
+
+                    <div 
+
+                        className="h-full bg-gradient-to-r from-rose-300 to-rose-500 rounded-full transition-all duration-500 ease-out flex items-center justify-end px-1" 
+
+                        style={{width: `${((currentQ + 1)/questions.length)*100}%`}}
+
+                    >
+
+                        <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <div className="flex-1 flex flex-col justify-center text-center space-y-8 py-4">
+
+              <div className="relative mx-auto w-16 h-16">
+
+                  <div className="absolute inset-0 bg-rose-100 rounded-2xl rotate-12 animate-pulse"></div>
+
+                  <div className="absolute inset-0 bg-white rounded-2xl border-2 border-rose-200 flex items-center justify-center -rotate-3 shadow-sm">
+
+                    <Search size={32} className="text-rose-400" />
+
+                  </div>
+
+              </div>
+
+              <h2 className="text-xl font-black text-slate-700 leading-snug px-2">{questions[currentQ].text}</h2>
+
+              <div className="grid gap-3">
+
+                {questions[currentQ].options.map((opt, idx) => (
+
+                  <button 
+
+                    key={idx} 
+
+                    onClick={() => handleAnswer(opt.score)} 
+
+                    className="w-full text-center py-4 px-6 rounded-3xl bg-white border-4 border-rose-50 font-black text-slate-500 text-base shadow-sm hover:border-rose-200 hover:bg-rose-50/50 active:scale-95 transition-all"
+
+                  >
+
+                    {opt.text}
+
+                  </button>
+
+                ))}
+
+              </div>
+
+            </div>
+
+          </div>
+
+        )}
+
+
+
+        {step === 'loading' && (
+
+            <div className="p-12 text-center space-y-6 flex-1 flex flex-col justify-center animate-in zoom-in">
+
+                <div className="relative w-24 h-24 mx-auto">
+
+                    <div className="absolute inset-0 border-8 border-rose-100 border-t-rose-400 rounded-full animate-spin"></div>
+
+                    <div className="absolute inset-0 flex items-center justify-center text-4xl">📒</div>
+
+                </div>
+
+                <div className="space-y-2">
+
+                    <p className="text-rose-400 font-black text-sm tracking-widest animate-bounce">きみのページを書いてるよ...</p>
+
+                </div>
+
+            </div>
+
+        )}
+
+
+
+        {step === 'result' && resultsData && (
+
+          <div className="animate-in fade-in slide-in-from-bottom-10 pb-10">
+
+            <div className={`bg-gradient-to-b ${resultsData.animal.color} p-8 text-center rounded-b-[60px] relative`}>
+
+              <div className="absolute top-4 left-4 text-white opacity-40"><Star size={20} fill="currentColor" /></div>
+
+              <div className="absolute top-8 right-6 text-white opacity-40"><Sparkles size={24} fill="currentColor" /></div>
+
+              
+
+              <div className="text-[110px] animate-float leading-none mb-4 drop-shadow-2xl">{resultsData.animal.emoji}</div>
+
+              <h2 className={`text-3xl font-black ${resultsData.animal.textColor} tracking-tight`}>{resultsData.animal.name}</h2>
+
+              <div className={`inline-flex items-center gap-2 px-5 py-1.5 mt-3 rounded-full ${resultsData.animal.accent} text-white font-black text-[10px] tracking-widest shadow-lg`}>
+
+                {resultsData.roleInfo.icon}
+
+                {resultsData.roleInfo.name.toUpperCase()}
+
+              </div>
+
+            </div>
+
+
+
+            <div className="p-5 space-y-8">
+
+              <div className="text-center space-y-3">
+
+                <div className="flex items-center justify-center gap-2">
+
+                    <div className="h-[2px] w-8 bg-rose-200" />
+
+                    <Music size={16} className="text-rose-300" />
+
+                    <div className="h-[2px] w-8 bg-rose-200" />
+
+                </div>
+
+                <h3 className="text-xl font-black text-slate-800 italic leading-snug">「{resultsData.title}」</h3>
+
+              </div>
+
+
+
+              <div className="space-y-6">
+
+                <Card title="どんなこころ？" icon={<Smile size={18} className="text-rose-400" />} color="bg-white">
+
+                  <p className="text-[13px] leading-relaxed text-slate-600 font-bold">{resultsData.about}</p>
+
+                </Card>
+
+
+
+                <Card title="きみの世界観" icon={<Camera size={18} className="text-indigo-400" />} color="bg-indigo-50/30">
+
+                  <p className="text-[11px] leading-relaxed text-slate-500 font-bold italic">{resultsData.world}</p>
+
+                </Card>
+
+
+
+                <div className="grid gap-4">
+
+                  <div className="p-6 rounded-[40px] bg-[#FFF8F0] border-4 border-white shadow-md">
+
+                    <h4 className="text-[10px] font-black text-orange-500 tracking-widest mb-3 flex items-center gap-2">
+
+                        <div className="p-1.5 bg-orange-100 rounded-full"><Zap size={12} fill="currentColor" /></div>
+
+                        うっかりの理由
+
+                    </h4>
+
+                    <p className="text-[11px] font-black text-slate-500 leading-relaxed">{resultsData.tips}</p>
+
+                  </div>
+
+                  <div className="p-6 rounded-[40px] bg-rose-500 border-4 border-white shadow-xl">
+
+                    <h4 className="text-[10px] font-black text-rose-100 tracking-widest mb-3 flex items-center gap-2">
+
+                        <div className="p-1.5 bg-white/20 rounded-full"><Star size={12} fill="currentColor" /></div>
+
+                        きみだけの才能
+
+                    </h4>
+
+                    <p className="text-[11px] font-black text-white leading-relaxed">{resultsData.talent}</p>
+
+                  </div>
+
+                </div>
+
+
+
+                <div className="p-8 bg-gradient-to-br from-rose-400 to-orange-400 rounded-[50px] border-4 border-white shadow-2xl text-center relative overflow-hidden group">
+
+                  <div className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
+
+                  <h4 className="text-[9px] font-black text-rose-100 tracking-[0.3em] mb-2 uppercase">ADVICE FOR YOU</h4>
+
+                  <p className="text-lg text-white font-black italic drop-shadow-sm">{resultsData.advice}</p>
+
+                </div>
+
+              </div>
+
+
+
+              <button 
+
+                onClick={() => {setStep('start'); setCurrentQ(0);}} 
+
+                className="w-full py-6 text-rose-300 font-black text-[10px] tracking-[0.5em] flex items-center justify-center gap-2 hover:text-rose-500 transition-colors"
+
+              >
+
+                <RotateCcw size={14} /> 冒険をやりなおす
+
+              </button>
+
+            </div>
+
+          </div>
+
+        )}
+
+      </div>
+
+
+
+      <style dangerouslySetInnerHTML={{ __html: `
+
+        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-12px) rotate(2deg); } }
+
+        .animate-float { animation: float 5s ease-in-out infinite; }
+
+      `}} />
+
+    </div>
+
+  );
+
+};
+
+
+
+const Card = ({ title, icon, children, color }) => (
+
+  <div className="space-y-3">
+
+    <h4 className="text-[10px] font-black text-slate-400 flex items-center gap-3 tracking-[0.2em] uppercase pl-4">
+
+      {icon} {title}
+
+    </h4>
+
+    <div className={`${color} p-6 rounded-[40px] border-4 border-slate-50 shadow-sm`}>
+
+      {children}
+
+    </div>
+
+  </div>
+
+);
+
+
+
+export default App;
+
+>>>>>>> 9d9107a89a625f8febd89a4fe5b448fc7b6390c0
